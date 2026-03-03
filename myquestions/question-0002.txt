@@ -1,7 +1,4 @@
- 
-Form_Responses
- 
- 	
+
 Problema (descripción)
 Recibes un DataFrame con una columna de texto y varias columnas binarias que representan múltiples etiquetas (p. ej., tema_deporte, tema_politica, tema_tecnologia). Quieres un clasificador multi‑etiqueta eficiente que evite construir un vocabulario explícito (por memoria) usando HashingVectorizer, y entrenar con OneVsRestClassifier(LogisticRegression).
 
