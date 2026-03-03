@@ -1,1 +1,3 @@
-# ai4eng-20262-python-questions
+# Data science questions
+student: Melissa González López
+email: melissa.gonzalezl@udea.edu.co
