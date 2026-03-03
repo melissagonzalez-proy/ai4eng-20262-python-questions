@@ -1,0 +1,10 @@
+Problema (descripción)
+Tienes un DataFrame de pandas con columnas numéricas, potencialmente con valores faltantes. Quieres agrupar las observaciones, pero no sabes cuántos clústeres usar. Necesitas un método probabilístico que compare varios valores de k y elija el mejor mediante el Bayesian Information Criterion (BIC). Además, deseas un preprocesamiento simple (imputación + escalado) antes de ajustar los modelos.
+
+Tu Misión
+Escribe una función llamada seleccionar_gmm_por_bic(df, features=None, k_values=(1,2,3,4,5), covariance_type='full', random_state=42) que:
+1. Seleccione las columnas a usar (si features es None, usa todas las columnas numéricas de df).
+2. Impute los valores faltantes con la mediana usando SimpleImputer (sklearn) y escale con StandardScaler (sklearn).
+3. Para cada k en k_values, ajuste un GaussianMixture (sklearn.mixture) y calcule su BIC.
+4. Elija el k con BIC mínimo, asigne etiquetas con el mejor modelo.
+5. Devuelva: labels (numpy.ndarray), best_k (int), bic_df (pandas.DataFrame con columnas k y bic), pipe (Pipeline de sklearn ajustado con el mejor k sobre todos los datos).

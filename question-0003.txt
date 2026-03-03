@@ -1,0 +1,14 @@
+ 
+Form_Responses
+ 
+ 	
+Problema (descripción)
+Tienes un DataFrame con columnas numéricas y una columna objetivo con etiquetas faltantes. Quieres entrenar un modelo semi‑supervisado que propague etiquetas desde ejemplos conocidos a desconocidos, aplicando imputación y escalado antes del entrenamiento.
+
+Tu Misión
+Escribe una función llamada propagar_etiquetas_label_spreading(df, target_col, features=None, kernel="rbf", gamma=20, unlabeled_fraction=0.6, test_size=0.2, random_state=42) que:
+1. Seleccione columnas a usar (si features es None, usa todas las numéricas excepto target_col), y separe X/y usando solo filas con etiqueta conocida para el split.
+2. En el conjunto de entrenamiento, oculte aleatoriamente una fracción unlabeled_fraction de etiquetas como -1.
+3. Impute con mediana y escale con StandardScaler.
+4. Entrene LabelSpreading(kernel=kernel, gamma=gamma) y realice predicciones en el conjunto de prueba.
+5. Devuelva: y_test (numpy.ndarray), y_pred (numpy.ndarray), accuracy (float), pipe (pipeline: preprocesamiento + LabelSpreading, ajustado con el protocolo anterior).

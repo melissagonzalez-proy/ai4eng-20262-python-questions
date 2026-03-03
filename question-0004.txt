@@ -1,0 +1,29 @@
+Problema (descripción)
+Cuentas con un DataFrame de pandas con múltiples columnas numéricas que pueden incluir valores faltantes. No tienes etiquetas: tu objetivo es detectar observaciones anómalas en un escenario donde la densidad local varía (zonas de datos muy pobladas junto a regiones dispersas). Quieres un método que considere la densidad del vecindario y que, además, aplique un preprocesamiento mínimo (imputación y escalado) antes de la detección.
+
+Tu Misión:
+Escribe una función llamada detectar_outliers_lof(df, features=None, n_neighbors=20, contamination=0.05, test_size=0.2, random_state=42) que realice lo siguiente:
+
+1) Seleccionar las columnas a usar (con pandas):
+   1.1) Si features es None, usar todas las columnas numéricas de df.
+   1.2) Si se pasa features (lista de nombres), usar solo esas columnas.
+
+2) Imputar los valores faltantes en X con la mediana usando SimpleImputer (sklearn) y escalar con StandardScaler (sklearn).
+
+3) Dividir los datos en entrenamiento y prueba con train_test_split(test_size, random_state).
+
+4) Entrenar un LocalOutlierFactor (sklearn) con novelty=True, n_neighbors=n_neighbors y contamination=contamination, dentro de un Pipeline de sklearn que encadene el preprocesamiento y el modelo.
+
+5) Predecir en el conjunto de prueba para obtener:
+   5.1) y_pred (valores 1 = normal, -1 = outlier).
+   5.2) scores vía decision_function (valores más altos ⇒ más “normal”).
+
+6) Devolver tres elementos:
+   6.1) y_pred (numpy.ndarray con las etiquetas de outlier del conjunto de prueba).
+   6.2) scores (numpy.ndarray con los puntajes de anormalidad del conjunto de prueba).
+   6.3) pipe (el Pipeline de sklearn ya entrenado).
+
+Requisitos:
+- Usar pandas para la selección de columnas.
+- Usar sklearn para imputación, escalado, partición, LocalOutlierFactor y Pipeline.
+- numpy es opcional para asegurar tipos/salidas.

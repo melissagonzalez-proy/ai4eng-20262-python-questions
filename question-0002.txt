@@ -1,0 +1,14 @@
+ 
+Form_Responses
+ 
+ 	
+Problema (descripción)
+Recibes un DataFrame con una columna de texto y varias columnas binarias que representan múltiples etiquetas (p. ej., tema_deporte, tema_politica, tema_tecnologia). Quieres un clasificador multi‑etiqueta eficiente que evite construir un vocabulario explícito (por memoria) usando HashingVectorizer, y entrenar con OneVsRestClassifier(LogisticRegression).
+
+Tu Misión
+Escribe una función llamada clasificar_multietiqueta_hashing(df, text_col, label_cols, n_features=2**12, test_size=0.2, random_state=42) que:
+1. Construya X desde text_col (texto) y Y como matriz binaria de label_cols.
+2. Divida en train/test con train_test_split.
+3. Entrene un Pipeline: HashingVectorizer(n_features=n_features, alternate_sign=False) -> OneVsRestClassifier(LogisticRegression(max_iter=1000)).
+4. Prediga en el conjunto de prueba y calcule F1-micro usando f1_score(average="micro").
+5. Devuelva: Y_test (numpy.ndarray), Y_pred (numpy.ndarray), f1_micro (float), pipe (Pipeline ajustado).
