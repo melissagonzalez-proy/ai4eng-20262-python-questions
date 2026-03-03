@@ -1,7 +1,4 @@
- 
-Form_Responses
- 
- 	
+	
 Problema (descripción)
 Tienes un DataFrame con columnas numéricas y una columna objetivo con etiquetas faltantes. Quieres entrenar un modelo semi‑supervisado que propague etiquetas desde ejemplos conocidos a desconocidos, aplicando imputación y escalado antes del entrenamiento.
 
