@@ -3,7 +3,7 @@ Misión: detectar_outliers_lof (LOF con imputación, escalado y predicción en t
 
 Este script incluye:
 1) SOLUCIÓN: detectar_outliers_lof
-2) GENERADOR DE CASOS (alineado a tu plantilla): generar_caso_de_uso_detectar_outliers_lof__manual
+2) GENERADOR DE CASOS (alineado a tu plantilla): generar_caso_de_uso_detectar_outliers_lof
    - *** AQUÍ se construye el INPUT ***
    - *** AQUÍ se calcula el OUTPUT esperado (replicando la lógica MANUALMENTE, sin llamar a la solución) ***
 3) EJEMPLOS DE USO:
@@ -28,9 +28,9 @@ from sklearn.neighbors import LocalOutlierFactor
 
 
 # =========================
-# 1) FUNCIÓN SOLUCIÓN (sin cambios)
+# 1) FUNCIÓN SOLUCIÓN
 # =========================
-def detectar_outliers_lof(
+def _detectar_outliers_lof(
     df,
     features=None,
     n_neighbors=20,
@@ -95,7 +95,7 @@ def detectar_outliers_lof(
 # =========================
 # 2) GENERADOR DE CASOS (alineado a tu plantilla)
 # =========================
-def generar_caso_de_uso_detectar_outliers_lof__manual():
+def generar_caso_de_uso_detectar_outliers_lof():
     """
     Genera un caso de prueba aleatorio (input y output esperado)
     para la misión de LOF, **replicando manualmente** la lógica esperada
@@ -228,8 +228,8 @@ def generar_caso_de_uso_detectar_outliers_lof__manual():
 if __name__ == "__main__":
     print(f"scikit-learn version: {sklearn.__version__}")
 
-    # 3.1) Generar un caso y ver INPUT/OUTPUT esperado (manual)
-    args, output_esp = generar_caso_de_uso_detectar_outliers_lof__manual()
+    # 3.1) Generar un caso y ver INPUT/OUTPUT esperado
+    args, output_esp = generar_caso_de_uso_detectar_outliers_lof()
 
     print("\n== INPUT generado (args) ==")
     resumen = {
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     print("pipeline:", type(pipe_exp).__name__)
 
     # 3.2) (Opcional) Ejecutar la función solución con **args y comparar tamaños
-    y_pred_run, scores_run, pipe_run = detectar_outliers_lof(**args)
+    y_pred_run, scores_run, pipe_run = _detectar_outliers_lof(**args)
 
     print("\n== OUTPUT al ejecutar detectar_outliers_lof(**args) ==")
     uniques2, counts2 = np.unique(y_pred_run, return_counts=True)
@@ -264,7 +264,7 @@ if __name__ == "__main__":
     # 3.4) Demostración de aleatoriedad (2 casos adicionales)
     print("\n== Generando 2 casos aleatorios adicionales ==")
     for i in range(2):
-        a, o = generar_caso_de_uso_detectar_outliers_lof__manual()
+        a, o = generar_caso_de_uso_detectar_outliers_lof()
         yp, sc, _ = o
         fr_out = float(np.mean(yp == -1))
         print(f" Caso {i+1}: df{a['df'].shape}, k={a['n_neighbors']}, "
