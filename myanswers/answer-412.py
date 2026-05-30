@@ -1,53 +1,59 @@
 import numpy as np
 import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
+
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import RobustScaler
 from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+
 
 def segmentar_paisajes_sonoros(df, n_clusters):
-    
-    # Columnas a usar para clustering (excluir timestamp)
-    feature_cols = ['intensidad_media', 'intensidad_max', 
-                    'frecuencia_media', 'frecuencia_dominante', 
-                    'diversidad_espectral']
-    
-    # Extraer características
-    X = df[feature_cols].values
-    
-    # Manejar valores nulos si existen (reemplazar con mediana)
-    if np.any(pd.isnull(X)):
-        from sklearn.impute import SimpleImputer
-        imputer = SimpleImputer(strategy='median')
-        X = imputer.fit_transform(X)
-    
-    # Estandarizar características 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    # Aplicar K-means clustering
-    kmeans = KMeans(n_clusters=n_clusters, 
-                    random_state=42, 
-                    n_init=10,
-                    max_iter=300)
-    labels = kmeans.fit_predict(X_scaled)
-    
-    # Calcular silhouette score (solo si hay más de 1 cluster y suficientes muestras)
-    if n_clusters > 1 and len(np.unique(labels)) > 1 and len(X_scaled) > n_clusters:
-        silhouette = silhouette_score(X_scaled, labels)
-    else:
-        silhouette = -1.0  # No aplicable
-    
-    # PCA para análisis de varianza explicada
-    pca = PCA()
-    pca.fit(X_scaled)
-    varianza_explicada = pca.explained_variance_ratio_.tolist()
-    
-    # Resultados
-    return {
-        'labels': labels,
-        'silhouette': silhouette,
-        'varianza_explicada_pca': varianza_explicada
-    }
 
+    # Eliminar timestamp
+    X = df.drop(columns=["timestamp"])
+
+    # Imputar valores faltantes
+    imputer = SimpleImputer(strategy="median")
+    X_imp = imputer.fit_transform(X)
+
+    # Escalar datos
+    scaler = RobustScaler()
+    X_scaled = scaler.fit_transform(X_imp)
+
+    # PCA a 2 componentes
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_scaled)
+
+    varianza_explicada_pca = [
+        float(v) for v in pca.explained_variance_ratio_
+    ]
+
+    # Clustering
+    modelo_cluster = AgglomerativeClustering(
+        n_clusters=n_clusters,
+        linkage="ward"
+    )
+
+    labels = modelo_cluster.fit_predict(X_pca)
+
+    # Silhouette
+    if len(np.unique(labels)) < 2:
+        silhouette = -1.0
+    else:
+        silhouette = round(
+            float(
+                silhouette_score(
+                    X_scaled,
+                    labels,
+                    metric="euclidean"
+                )
+            ),
+            4
+        )
+
+    return {
+        "labels": labels,
+        "silhouette": silhouette,
+        "varianza_explicada_pca": varianza_explicada_pca
+    }
