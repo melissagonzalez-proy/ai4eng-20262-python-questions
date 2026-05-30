@@ -1,76 +1,53 @@
-import pandas as pd
 import numpy as np
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 
 def segmentar_paisajes_sonoros(df, n_clusters):
-    """
-    Segmenta paisajes sonoros mediante clustering y evalúa la calidad.
     
-    Parámetros:
-    -----------
-    df : pandas.DataFrame
-        DataFrame con columnas: intensidad_media, intensidad_max, 
-        frecuencia_media, frecuencia_dominante, diversidad_espectral, timestamp
-    n_clusters : int
-        Número de clusters a formar
+    # Columnas a usar para clustering (excluir timestamp)
+    feature_cols = ['intensidad_media', 'intensidad_max', 
+                    'frecuencia_media', 'frecuencia_dominante', 
+                    'diversidad_espectral']
     
-    Retorna:
-    --------
-    dict
-        Diccionario con:
-        - 'labels': array con asignaciones de cluster
-        - 'silhouette': puntaje de silhouette
-        - 'varianza_explicada_pca': lista con varianza explicada por componentes PCA
-    """
+    # Extraer características
+    X = df[feature_cols].values
     
-    # 1. Seleccionar columnas numéricas (excluyendo timestamp si existe)
-    columnas_acusticas = ['intensidad_media', 'intensidad_max', 
-                          'frecuencia_media', 'frecuencia_dominante', 
-                          'diversidad_espectral']
+    # Manejar valores nulos si existen (reemplazar con mediana)
+    if np.any(pd.isnull(X)):
+        from sklearn.impute import SimpleImputer
+        imputer = SimpleImputer(strategy='median')
+        X = imputer.fit_transform(X)
     
-    # Verificar que todas las columnas necesarias existen
-    columnas_disponibles = [col for col in columnas_acusticas if col in df.columns]
-    if len(columnas_disponibles) < len(columnas_acusticas):
-        missing = set(columnas_acusticas) - set(columnas_disponibles)
-        raise ValueError(f"Faltan columnas requeridas: {missing}")
-    
-    X = df[columnas_acusticas].copy()
-    
-    # 2. Imputar valores faltantes con la media de cada columna
-    imputer = SimpleImputer(strategy='mean')
-    X_imputado = imputer.fit_transform(X)
-    
-    # 3. Escalar los datos
+    # Estandarizar características 
     scaler = StandardScaler()
-    X_escalado = scaler.fit_transform(X_imputado)
+    X_scaled = scaler.fit_transform(X)
     
-    # 4. Aplicar K-Means clustering
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    labels = kmeans.fit_predict(X_escalado)
+    # Aplicar K-means clustering
+    kmeans = KMeans(n_clusters=n_clusters, 
+                    random_state=42, 
+                    n_init=10,
+                    max_iter=300)
+    labels = kmeans.fit_predict(X_scaled)
     
-    # 5. Calcular silhouette score
-    if n_clusters >= 2 and len(np.unique(labels)) >= 2:
-        silhouette = silhouette_score(X_escalado, labels)
+    # Calcular silhouette score (solo si hay más de 1 cluster y suficientes muestras)
+    if n_clusters > 1 and len(np.unique(labels)) > 1 and len(X_scaled) > n_clusters:
+        silhouette = silhouette_score(X_scaled, labels)
     else:
-        silhouette = -1.0
+        silhouette = -1.0  # No aplicable
     
-    # 6. Calcular varianza explicada por PCA (primeros componentes hasta 95%)
+    # PCA para análisis de varianza explicada
     pca = PCA()
-    pca.fit(X_escalado)
+    pca.fit(X_scaled)
+    varianza_explicada = pca.explained_variance_ratio_.tolist()
     
-    # Obtener varianza explicada acumulada
-    varianza_acumulada = np.cumsum(pca.explained_variance_ratio_)
-    
-    # Encontrar cuántos componentes se necesitan para 95% de varianza
-    # Devolver lista de varianza explicada por cada componente
-    varianza_explicada_pca = pca.explained_variance_ratio_.tolist()
-    
+    # Resultados
     return {
         'labels': labels,
         'silhouette': silhouette,
-        'varianza_explicada_pca': varianza_explicada_pca
+        'varianza_explicada_pca': varianza_explicada
     }
+
